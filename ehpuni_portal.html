@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>eHPUni Portal - Final Version</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    :root { --blue-hpu: #1e40af; --sidebar-bg: #f8fafc; --text-main: #334155; --accent: #2563eb; }
+    body{margin:0; font-family: 'Segoe UI', Tahoma, sans-serif; background:#f1f5f9; color: var(--text-main); display: flex; flex-direction: column; height: 100vh;}
+    header{background:white; color: var(--blue-hpu); padding:15px 25px; font-weight:700; border-bottom:1px solid #e2e8f0; font-size:1.2rem; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05)}
+    .container{display:flex; flex: 1; overflow: hidden;}
+    .sidebar{width:260px; background:var(--sidebar-bg); border-right:1px solid #e2e8f0; overflow-y: auto; padding: 10px 0; flex-shrink: 0;}
+    .sidebar-label { padding: 15px 20px 5px; font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .sidebar div{padding:12px 25px; cursor:pointer; transition:0.2s; display:flex; align-items:center; gap:12px; font-size: 0.9rem; color: #475569; font-weight: 500;}
+    .sidebar div:hover{background:#f1f5f9; color:var(--accent)}
+    .sidebar div.active { color: var(--accent); background: #eff6ff; border-right: 4px solid var(--accent); font-weight: 600; }
+    .main{flex:1; padding:30px; overflow-y: auto; background: #f1f5f9;}
+    .card{background:white; padding:25px; border-radius:16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom:25px;}
+    .dialogue-line { background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; position: relative; }
+    .tag { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; display: inline-block; }
+    .tag-zephyr { background: #f3e8ff; color: #7e22ce; } 
+    .tag-puck { background: #fef3c7; color: #b45309; }
+    textarea { width: 100%; border: none; border-bottom: 1px solid #cbd5e1; padding: 10px 0; outline: none; font-size: 1.05rem; background: transparent; color: #1e293b; line-height: 1.5; resize: none;}
+    .action-bar { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .btn { border: none; padding: 14px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 120px;}
+    .btn-run { background: var(--blue-hpu); color: white; }
+    .btn-record { background: #ef4444; color: white; }
+    .btn-record.recording { animation: blink 1s infinite; background: #dc2626; }
+    .btn-delete { background: #64748b; color: white; flex: 0.3; display: none;} 
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; }
+    .item-card { background: white; border: 1px solid #e2e8f0; padding: 20px 10px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .item-card:hover { transform: translateY(-3px); border-color: var(--accent); background: #f0f7ff; }
+    .item-card b { font-size: 1.3rem; color: #1e293b; display: block; margin-bottom: 5px;}
+    .item-card span { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;}
+    .page { display: none; }
+    .active-page { display: block; }
+    #audioContainer { margin-top: 20px; padding: 15px; background: #eff6ff; border-radius: 12px; display: none; border: 1px dashed var(--accent); }
+</style>
+</head>
+<body>
+
+<header>🏢 eHPUni PORTAL - CNTT 4 (K26)</header>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-label">Cá nhân</div>
+        <div onclick="showPage('home', this)" class="active">🏠 Trang chủ</div>
+        <div onclick="showPage('playground', this)">🎙️ AI Studio & Recording</div>
+        <div class="sidebar-label">Tài liệu học tập</div>
+        <div onclick="showPage('alphabet', this)">🔤 Alphabet (A-Z)</div>
+        <div onclick="showPage('ipa', this)">🔊 IPA Chart (Full 44)</div>
+        <div onclick="showPage('numbers', this)">🔢 Numbers (0-100)</div>
+    </div>
+
+    <div class="main">
+        <div id="home" class="page active-page">
+            <div class="card">
+                <h2>Xin chào Tú Đào! 👋</h2>
+                <p>Hệ thống đã sẵn sàng. Giọng <b>Zephyr (Nữ)</b> và <b>Puck (Nam)</b> đã được cấu hình chuẩn.</p>
+            </div>
+        </div>
+
+        <div id="playground" class="page">
+            <div class="card">
+                <h3>🎙️ AI Studio - Luyện đối thoại & Thu âm</h3>
+                <div id="conversation-container">
+                    <div class="dialogue-line" data-speaker="zephyr">
+                        <span class="tag tag-zephyr">Speaker 1: Zephyr (Nữ)</span>
+                        <textarea rows="2">Hello! We're excited to show you our native speech capabilities.</textarea>
+                    </div>
+                    <div class="dialogue-line" data-speaker="puck">
+                        <span class="tag tag-puck">Speaker 2: Puck (Nam)</span>
+                        <textarea rows="2">Where you can direct a voice, create realistic dialog, and so much more!</textarea>
+                    </div>
+                </div>
+                <div class="action-bar">
+                    <button class="btn btn-run" onclick="runConversation()">▶ PHÁT AI</button>
+                    <button id="recordBtn" class="btn btn-record" onclick="toggleRecording()">🎤 THU ÂM</button>
+                    <button id="deleteBtn" class="btn btn-delete" onclick="deleteRecording()">🗑️ XÓA</button>
+                </div>
+                <div id="audioContainer">
+                    <div style="margin-bottom: 8px;"><b>🎧 Bản thu của bạn:</b></div>
+                    <audio id="recordedAudio" controls style="width: 100%;"></audio>
+                </div>
+            </div>
+        </div>
+
+        <div id="alphabet" class="page"><div class="card"><h3>Alphabet (A-Z)</h3><div id="alphaGrid" class="grid"></div></div></div>
+        <div id="ipa" class="page"><div class="card"><h3>IPA Chart (Full 44)</h3><div id="ipaGrid" class="grid"></div></div></div>
+        <div id="numbers" class="page"><div class="card"><h3>Numbers (0-100)</h3><div id="numGrid" class="grid"></div></div></div>
+    </div>
+</div>
+
+<script>
+const synth = window.speechSynthesis;
+let voices = [], mediaRecorder, audioChunks = [];
+
+function loadVoices() { voices = synth.getVoices(); }
+if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
+
+function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+    document.querySelectorAll('.sidebar div').forEach(d => d.classList.remove('active'));
+    document.getElementById(id).classList.add('active-page');
+    el.classList.add('active');
+}
+
+async function runConversation() {
+    synth.cancel();
+    const lines = document.querySelectorAll('.dialogue-line');
+    for (let line of lines) {
+        const text = line.querySelector('textarea').value;
+        const speaker = line.dataset.speaker;
+        if (text.trim()) {
+            await new Promise(res => {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US';
+                let v = voices.find(voice => {
+                    const n = voice.name.toLowerCase();
+                    if (speaker === 'zephyr') return n.includes('zira') || n.includes('female');
+                    return n.includes('david') || n.includes('male');
+                });
+                if (v) u.voice = v;
+                if (speaker === 'zephyr') { u.pitch = 1.4; u.rate = 1.05; }
+                else { u.pitch = 0.85; u.rate = 0.95; }
+                u.onend = res; synth.speak(u);
+            });
+        }
+    }
+}
+
+async function toggleRecording() {
+    const btn = document.getElementById('recordBtn');
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                document.getElementById('recordedAudio').src = URL.createObjectURL(blob);
+                document.getElementById('audioContainer').style.display = 'block';
+                document.getElementById('deleteBtn').style.display = 'flex';
+            };
+            mediaRecorder.start();
+            btn.innerText = "🛑 DỪNG THU"; btn.classList.add('recording');
+        } catch (err) { alert("Micro chưa được cấp quyền!"); }
+    } else {
+        mediaRecorder.stop();
+        btn.innerText = "🎤 THU ÂM"; btn.classList.remove('recording');
+    }
+}
+
+function deleteRecording() {
+    document.getElementById('recordedAudio').src = '';
+    document.getElementById('audioContainer').style.display = 'none';
+    document.getElementById('deleteBtn').style.display = 'none';
+}
+
+function init() {
+    loadVoices();
+    const aG = document.getElementById('alphaGrid'), iG = document.getElementById('ipaGrid'), nG = document.getElementById('numGrid');
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(x => createItem(aG, x, x));
+    const ipas = ["iː","ɪ","ʊ","uː","e","ə","ɜː","ɔː","æ","ʌ","ɑː","ɒ","ɪə","eɪ","ʊə","ɔɪ","əʊ","eə","aɪ","aʊ","p","b","t","d","tʃ","dʒ","k","g","f","v","θ","ð","s","z","ʃ","ʒ","m","n","ŋ","h","l","r","w","j"];
+    ipas.forEach(x => createItem(iG, x, x));
+    for(let i=0; i<=100; i++) createItem(nG, i, i.toString());
+}
+
+function createItem(parent, disp, snd) {
+    let d = document.createElement('div');
+    d.className = 'item-card';
+    d.innerHTML = `<b>${disp}</b><span>${parent.id.replace('Grid','').toUpperCase()}</span>`;
+    d.onclick = () => {
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(snd);
+        u.lang = 'en-US'; synth.speak(u);
+    };
+    parent.appendChild(d);
+}
+window.onload = init;
+</script>
+</body>
+</html>
