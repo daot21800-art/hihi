@@ -3,63 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eHPUni Mobile - AI Voice</title>
+    <title>eHPUni Portal Mobile Fix</title>
     <style>
-        :root { --blue: #1e40af; --bg: #f1f5f9; }
-        body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: #334155; }
-        header { background: #white; padding: 15px; text-align: center; border-bottom: 2px solid var(--blue); font-weight: bold; color: var(--blue); position: sticky; top: 0; z-index: 10; background: white; }
+        :root { --blue: #1e40af; --accent: #2563eb; --bg: #f8fafc; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: #1e293b; }
         
-        .menu-scroll { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 10px; border-bottom: 1px solid #e2e8f0; sticky; top: 52px; z-index: 9; }
-        .menu-item { white-space: nowrap; padding: 8px 15px; background: #eff6ff; border-radius: 20px; font-size: 14px; color: var(--blue); font-weight: 600; border: 1px solid #dbeafe; }
-        .menu-item.active { background: var(--blue); color: white; }
+        header { background: white; padding: 15px; text-align: center; border-bottom: 2px solid var(--blue); font-weight: bold; color: var(--blue); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        /* Menu trượt ngang cho điện thoại */
+        .nav { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 8px; border-bottom: 1px solid #e2e8f0; position: sticky; top: 51px; z-index: 99; scrollbar-width: none; }
+        .nav::-webkit-scrollbar { display: none; }
+        .nav-item { white-space: nowrap; padding: 8px 16px; background: #f1f5f9; border-radius: 20px; font-size: 13px; color: #64748b; font-weight: 600; border: 1px solid #e2e8f0; }
+        .nav-item.active { background: var(--blue); color: white; border-color: var(--blue); }
 
-        .content { padding: 15px; padding-bottom: 100px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .content { padding: 15px; }
+        .card { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
-        textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; box-sizing: border-box; font-size: 16px; margin-top: 10px; background: #f8fafc; }
+        .speaker-label { font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .label-z { color: #7e22ce; } .label-p { color: #b45309; }
         
-        .btn-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 14px; }
-        .btn-play { background: var(--blue); }
+        textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 16px; margin-bottom: 12px; font-family: inherit; background: #fff; }
+        
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-play { background: var(--blue); grid-column: span 2; }
         .btn-rec { background: #ef4444; }
-        .btn-rec.active { animation: pulse 1s infinite; background: #b91c1c; }
-        .btn-del { background: #64748b; grid-column: span 2; }
+        .btn-del { background: #64748b; }
+        .recording { animation: pulse 1.5s infinite; background: #dc2626; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
-        .item { background: white; border: 1px solid #e2e8f0; padding: 15px 5px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
+        .item { background: white; border: 1px solid #e2e8f0; padding: 15px 5px; text-align: center; border-radius: 10px; font-weight: 700; font-size: 15px; transition: 0.2s; }
+        .item:active { background: #eff6ff; transform: scale(0.95); border-color: var(--blue); }
         
-        #audio-ui { margin-top: 15px; display: none; background: #f0fdf4; padding: 10px; border-radius: 8px; border: 1px dashed #22c55e; }
+        #record-box { margin-top: 15px; padding: 12px; background: #f0fdf4; border-radius: 10px; border: 1px dashed #22c55e; display: none; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<header>🏢 eHPUni MOBILE PORTAL</header>
+<header>🏢 eHPUni PORTAL - MOBILE FIX</header>
 
-<div class="menu-scroll">
-    <div class="menu-item active" onclick="tab('st')">🎙️ Studio</div>
-    <div class="menu-item" onclick="tab('al')">🔤 Alphabet</div>
-    <div class="menu-item" onclick="tab('ip')">🔊 IPA</div>
-    <div class="menu-item" onclick="tab('nu')">🔢 0-100</div>
+<div class="nav">
+    <div class="nav-item active" onclick="tabs('st', this)">🎙️ Studio</div>
+    <div class="nav-item" onclick="tabs('al', this)">🔤 Alphabet</div>
+    <div class="nav-item" onclick="tabs('ip', this)">🔊 IPA (44)</div>
+    <div class="nav-item" onclick="tabs('nu', this)">🔢 0-100</div>
 </div>
 
 <div class="content">
     <div id="st" class="page card">
-        <div style="color: #7e22ce; font-weight: bold; font-size: 14px;">👩‍🦰 ZEPHYR (Nữ)</div>
-        <textarea id="t1">Hello! I am Zephyr.</textarea>
+        <span class="speaker-label label-z">Speaker 1: Zephyr (Nữ)</span>
+        <textarea id="t1">Hello! We're excited to show you our native speech capabilities.</textarea>
         
-        <div style="color: #b45309; font-weight: bold; font-size: 14px; margin-top: 15px;">👨‍🦱 PUCK (Nam)</div>
-        <textarea id="t2">And I am Puck. Nice to meet you!</textarea>
+        <span class="speaker-label label-p">Speaker 2: Puck (Nam)</span>
+        <textarea id="t2">Where you can direct a voice, create realistic dialog, and so much more!</textarea>
 
-        <div class="btn-box">
-            <button class="btn btn-play" onclick="playAI()">▶ PHÁT AI</button>
+        <div class="btn-grid">
+            <button class="btn btn-play" onclick="playAI()">▶ PHÁT ÂM AI</button>
             <button class="btn btn-rec" id="recBtn" onclick="toggleRec()">🎤 THU ÂM</button>
-            <button class="btn btn-del" id="delBtn" style="display:none" onclick="delRec()">🗑️ XÓA BẢN THU</button>
+            <button class="btn btn-del" id="delBtn" onclick="delRec()">🗑️ XÓA</button>
         </div>
 
-        <div id="audio-ui">
+        <div id="record-box">
+            <div style="font-size: 13px; margin-bottom: 8px; font-weight: bold;">🎧 Bản thu của bạn:</div>
             <audio id="player" controls style="width: 100%"></audio>
         </div>
     </div>
@@ -73,71 +82,93 @@
     const synth = window.speechSynthesis;
     let rec, chunks = [];
 
-    function tab(id) {
+    // Sửa lỗi tab cho Mobile
+    function tabs(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
-        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-        event.target.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(m => m.classList.remove('active'));
+        el.classList.add('active');
     }
 
+    // Fix lỗi giọng đọc trên iPhone/Android
     async function playAI() {
         synth.cancel();
         const cfg = [
-            { t: document.getElementById('t1').value, p: 1.4, r: 1.0, g: 'female' },
-            { t: document.getElementById('t2').value, p: 0.85, r: 0.9, g: 'male' }
+            { t: document.getElementById('t1').value, p: 1.4, r: 1.0, s: 'female' },
+            { t: document.getElementById('t2').value, p: 0.8, r: 0.9, s: 'male' }
         ];
-        for (let c of cfg) {
-            await new Promise(r => {
+        
+        for (const c of cfg) {
+            if (!c.t.trim()) continue;
+            await new Promise(resolve => {
                 const u = new SpeechSynthesisUtterance(c.t);
-                const vs = synth.getVoices();
-                u.voice = vs.find(v => v.name.toLowerCase().includes(c.g)) || vs[0];
+                const voices = synth.getVoices();
+                // Tìm giọng phù hợp hoặc mặc định
+                u.voice = voices.find(v => v.name.toLowerCase().includes(c.s)) || voices[0];
                 u.pitch = c.p; u.rate = c.r; u.lang = 'en-US';
-                u.onend = r; synth.speak(u);
+                u.onend = resolve;
+                u.onerror = resolve;
+                synth.speak(u);
             });
         }
     }
 
+    // Thu âm chuẩn Mobile
     async function toggleRec() {
-        const b = document.getElementById('recBtn');
+        const btn = document.getElementById('recBtn');
         if (!rec || rec.state === 'inactive') {
-            const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-            rec = new MediaRecorder(s);
-            chunks = [];
-            rec.ondataavailable = e => chunks.push(e.data);
-            rec.onstop = () => {
-                const blob = new Blob(chunks, { type: 'audio/mp3' });
-                document.getElementById('player').src = URL.createObjectURL(blob);
-                document.getElementById('audio-ui').style.display = 'block';
-                document.getElementById('delBtn').style.display = 'flex';
-            };
-            rec.start(); b.classList.add('active'); b.innerText = "🛑 DỪNG";
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                rec = new MediaRecorder(stream);
+                chunks = [];
+                rec.ondataavailable = e => chunks.push(e.data);
+                rec.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/mp3' });
+                    document.getElementById('player').src = URL.createObjectURL(blob);
+                    document.getElementById('record-box').style.display = 'block';
+                };
+                rec.start();
+                btn.classList.add('recording');
+                btn.innerText = "🛑 DỪNG";
+            } catch (e) { alert("Lỗi: Hãy cho phép quyền Truy cập Micro!"); }
         } else {
-            rec.stop(); b.classList.remove('active'); b.innerText = "🎤 THU ÂM";
+            rec.stop();
+            btn.classList.remove('recording');
+            btn.innerText = "🎤 THU ÂM";
         }
     }
 
     function delRec() {
         document.getElementById('player').src = '';
-        document.getElementById('audio-ui').style.display = 'none';
-        document.getElementById('delBtn').style.display = 'none';
+        document.getElementById('record-box').style.display = 'none';
+        alert("Đã xóa bản thu!");
     }
 
+    // Build data chuẩn 44 IPA và 0-100 Numbers
     function build() {
         const al = document.getElementById('al'), ip = document.getElementById('ip'), nu = document.getElementById('nu');
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(x => addItem(al, x));
-        ["iː","ɪ","ʊ","uː","e","ə","ɜː","ɔː","æ","ʌ","ɑː","ɒ","ɪə","eɪ","ʊə","ɔɪ","əʊ","eə","aɪ","aʊ","p","b","t","d","tʃ","dʒ","k","g","f","v","θ","ð","s","z","ʃ","ʒ","m","n","ŋ","h","l","r","w","j"].forEach(x => addItem(ip, x));
-        for(let i=0; i<=100; i++) addItem(nu, i);
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(x => createItem(al, x));
+        const ipas = ["iː","ɪ","ʊ","uː","e","ə","ɜː","ɔː","æ","ʌ","ɑː","ɒ","ɪə","eɪ","ʊə","ɔɪ","əʊ","eə","aɪ","aʊ","p","b","t","d","tʃ","dʒ","k","g","f","v","θ","ð","s","z","ʃ","ʒ","m","n","ŋ","h","l","r","w","j"];
+        ipas.forEach(x => createItem(ip, x));
+        for(let i=0; i<=100; i++) createItem(nu, i);
     }
 
-    function addItem(p, v) {
-        let d = document.createElement('div'); d.className = 'item'; d.innerText = v;
+    function createItem(p, v) {
+        let d = document.createElement('div');
+        d.className = 'item';
+        d.innerText = v;
         d.onclick = () => {
-            synth.cancel(); const u = new SpeechSynthesisUtterance(v);
-            u.lang = 'en-US'; synth.speak(u);
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(v.toString());
+            u.lang = 'en-US';
+            synth.speak(u);
         };
         p.appendChild(d);
     }
+
     window.onload = build;
+    // Kích hoạt tiếng trên Mobile sau khi chạm
+    document.body.addEventListener('touchstart', () => { synth.speak(new SpeechSynthesisUtterance("")); }, {once: true});
 </script>
 </body>
 </html>
